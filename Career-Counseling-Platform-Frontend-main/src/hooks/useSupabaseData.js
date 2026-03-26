@@ -46,7 +46,11 @@ export const useSupabaseData = (tableName, options = {}) => {
         console.log('Realtime change received:', payload);
         
         if (payload.eventType === 'INSERT') {
-          setData((prev) => [payload.new, ...prev]);
+          setData((prev) => {
+            if (prev.some((item) => item.id === payload.new.id)) return prev;
+            const isAsc = options.orderBy?.ascending === true;
+            return isAsc ? [...prev, payload.new] : [payload.new, ...prev];
+          });
         } else if (payload.eventType === 'UPDATE') {
           setData((prev) => prev.map((item) => (item.id === payload.new.id ? payload.new : item)));
         } else if (payload.eventType === 'DELETE') {
@@ -87,5 +91,5 @@ export const useSupabaseData = (tableName, options = {}) => {
     if (deleteError) throw deleteError;
   };
 
-  return { data, loading, error, addItem, updateItem, deleteItem, refresh: fetchData };
+  return { data, loading, error, addItem, updateItem, deleteItem, refresh: fetchData, setData };
 };

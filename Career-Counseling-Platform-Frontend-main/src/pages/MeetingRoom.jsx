@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Navbar from '../components/Navbar';
 import { Card, Button, Badge, Input } from '../components/ui/BaseComponents';
 import { Video, VideoOff, Mic, MicOff, Settings, ExternalLink, Camera, Monitor } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { supabase } from '../utils/supabase';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
 
 export default function MeetingRoom() {
   const location = useLocation();
@@ -17,7 +16,7 @@ export default function MeetingRoom() {
     id: 1,
     title: 'Career Consultation',
     expert: 'Sarah Miller',
-    link: 'https://meet.google.com/hbd-bqco-cqe', // persistent link
+    link: 'https://meet.google.com/mff-sixv-xwe', // updated to Google Meet link per user request
   };
   const safeSession = session || defaultSession;
 
@@ -30,23 +29,66 @@ export default function MeetingRoom() {
   const [isEditingLink, setIsEditingLink] = useState(false);
   const [editLinkValue, setEditLinkValue] = useState(safeSession.link);
   const [currentLink, setCurrentLink] = useState(safeSession.link);
-
-  // Fetch latest session link for users periodically
+  
+  // Sync meeting link logic
   useEffect(() => {
-    if (!isAdmin) {
-      const interval = setInterval(async () => {
-        try {
-          const res = await axios.get(`/api/sessions/${safeSession.id}`);
-          if (res.data?.link && res.data.link !== currentLink) {
-            setCurrentLink(res.data.link);
-          }
-        } catch (err) {
-          console.error("Failed to fetch session link:", err);
-        }
-      }, 5000);
-      return () => clearInterval(interval);
+    // 1. Load from LocalStorage first (instant)
+    const localLink = localStorage.getItem(`cp_meeting_link_${safeSession.id}`);
+    if (localLink) {
+      setCurrentLink(localLink);
+      setEditLinkValue(localLink);
     }
-  }, [isAdmin, safeSession.id, currentLink]);
+
+    // 2. Try fetching from supabase
+    const fetchLink = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('counseling_sessions')
+          .select('link')
+          .eq('id', safeSession.id)
+          .single();
+        
+        if (!error && data?.link) {
+          setCurrentLink(data.link);
+          setEditLinkValue(data.link);
+          localStorage.setItem(`cp_meeting_link_${safeSession.id}`, data.link);
+        }
+      } catch (err) {
+        // Fail silently
+      }
+    };
+
+    fetchLink();
+
+    // 3. Subscribe to changes (Realtime)
+    const channel = supabase
+      .channel(`session_sync_${safeSession.id}`)
+      .on('postgres_changes', { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'counseling_sessions',
+        filter: `id=eq.${safeSession.id}`
+      }, (payload) => {
+        if (payload.new.link) {
+          setCurrentLink(payload.new.link);
+          localStorage.setItem(`cp_meeting_link_${safeSession.id}`, payload.new.link);
+        }
+      })
+      .subscribe();
+
+    // 4. Sync across tabs via storage event (for local fallback)
+    const handleStorageChange = (e) => {
+      if (e.key === `cp_meeting_link_${safeSession.id}` && e.newValue) {
+        setCurrentLink(e.newValue);
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [safeSession.id]);
 
   // Start camera and microphone
   useEffect(() => {
@@ -96,16 +138,29 @@ export default function MeetingRoom() {
 
   const handleSaveLink = async () => {
     try {
-      await axios.put(`/api/sessions/${safeSession.id}`, { link: editLinkValue });
-      setCurrentLink(editLinkValue); // update link for everyone
+      // Always save to localStorage immediately for local persistence
+      localStorage.setItem(`cp_meeting_link_${safeSession.id}`, editLinkValue);
+      setCurrentLink(editLinkValue);
+
+      // Try saving to database as well
+      const { error } = await supabase
+        .from('counseling_sessions')
+        .update({ link: editLinkValue })
+        .eq('id', safeSession.id);
+
+      if (error) {
+        console.warn("Could not sync to database (table may be missing), link saved locally.");
+      }
+      
       setIsEditingLink(false);
     } catch (err) {
-      console.error("Failed to update link:", err);
+      console.warn("Link saved locally. Database update failed.");
+      setIsEditingLink(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white relative">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] relative transition-colors duration-300">
       {/* Background */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
         <img 
@@ -114,40 +169,39 @@ export default function MeetingRoom() {
           className="h-full w-full object-cover"
           referrerPolicy="no-referrer"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-transparent to-gray-900" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-primary)] via-transparent to-[var(--bg-primary)]" />
       </div>
 
-      <Navbar />
-
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 relative z-10">
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Left: Camera Preview */}
           <div className="lg:col-span-8">
-            <div className="relative aspect-video rounded-2xl bg-black overflow-hidden shadow-2xl ring-1 ring-white/10">
+            <div className="relative aspect-video rounded-2xl bg-[var(--bg-secondary)] overflow-hidden shadow-2xl ring-1 ring-[var(--border-subtle)] transition-colors">
               {stream ? (
                 <video ref={videoRef} autoPlay playsInline muted className="h-full w-full object-cover mirror" />
               ) : (
-                <div className="flex h-full w-full flex-col items-center justify-center bg-gray-800">
-                  <div className="h-24 w-24 rounded-full bg-gray-700 flex items-center justify-center">
-                    <VideoOff size={48} className="text-gray-500" />
+                <div className="flex h-full w-full flex-col items-center justify-center bg-[var(--bg-secondary)] transition-colors">
+                  <div className="h-24 w-24 rounded-full bg-[var(--bg-elevated)] flex items-center justify-center border border-[var(--border-subtle)] transition-colors">
+                    <VideoOff size={48} className="text-[var(--text-secondary)]/40" />
                   </div>
-                  <p className="mt-4 text-gray-400">{error || "Camera is not available"}</p>
-                  <Button onClick={startCamera} variant="outline" className="mt-4 border-white/20 text-white hover:bg-white/10">
+                  <p className="mt-4 text-[var(--text-secondary)] transition-colors">{error || "Camera is not available"}</p>
+                  <Button onClick={startCamera} variant="outline" className="mt-4 border-[var(--border-subtle)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-all">
                     Retry Camera
                   </Button>
                 </div>
               )}
 
               {/* Overlay Controls */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-black/40 backdrop-blur-md p-2 rounded-2xl border border-white/10">
-                <button onClick={toggleMic} className={`flex h-12 w-12 items-center justify-center rounded-xl transition-colors ${isMicOn ? 'bg-white/10 hover:bg-white/20' : 'bg-red-500 hover:bg-red-600'}`}>
-                  {isMicOn ? <Mic size={20} /> : <MicOff size={20} />}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-[var(--bg-elevated)]/60 backdrop-blur-md p-2 rounded-2xl border border-[var(--border-subtle)] transition-colors">
+                <button onClick={toggleMic} className={`flex h-12 w-12 items-center justify-center rounded-xl transition-colors ${isMicOn ? 'bg-[var(--bg-secondary)] hover:bg-[var(--bg-secondary)]/80' : 'bg-[var(--error-text)] hover:opacity-90'}`}>
+                  {isMicOn ? <Mic size={20} className="text-[var(--text-primary)]" /> : <MicOff size={20} className="text-white" />}
                 </button>
-                <button onClick={toggleVideo} className={`flex h-12 w-12 items-center justify-center rounded-xl transition-colors ${isVideoOn ? 'bg-white/10 hover:bg-white/20' : 'bg-red-500 hover:bg-red-600'}`}>
-                  {isVideoOn ? <Video size={20} /> : <VideoOff size={20} />}
+                <button onClick={toggleVideo} className={`flex h-12 w-12 items-center justify-center rounded-xl transition-colors ${isVideoOn ? 'bg-[var(--bg-secondary)] hover:bg-[var(--bg-secondary)]/80' : 'bg-[var(--error-text)] hover:opacity-90'}`}>
+                  {isVideoOn ? <Video size={20} className="text-[var(--text-primary)]" /> : <VideoOff size={20} className="text-white" />}
                 </button>
-                <button className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors">
-                  <Settings size={20} />
+                <button className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-secondary)]/80 transition-colors">
+                  <Settings size={20} className="text-[var(--text-primary)]" />
                 </button>
               </div>
             </div>
@@ -155,18 +209,18 @@ export default function MeetingRoom() {
 
           {/* Right: Meeting Info */}
           <div className="lg:col-span-4 flex flex-col gap-6">
-            <Card className="bg-gray-800 border-white/10 p-8 text-white">
+            <Card className="bg-[var(--bg-elevated)] border-[var(--border-subtle)] p-8 text-[var(--text-primary)] transition-colors">
               <Badge variant="info" className="mb-4">Live Session</Badge>
-              <h2 className="text-2xl font-bold mb-2">{safeSession.title}</h2>
+              <h2 className="text-2xl font-bold mb-2 transition-colors">{safeSession.title}</h2>
 
               {/* Current link */}
-              <p className="text-gray-400 mb-4">
-                Meeting Link: <span className="text-white font-medium ml-1">{currentLink || "No link available"}</span>
+              <p className="text-[var(--text-secondary)] mb-4 transition-colors">
+                Meeting Link: <span className="text-[var(--text-primary)] font-medium ml-1 transition-colors">{currentLink || "No link available"}</span>
               </p>
 
               {/* Admin edit */}
               {isAdmin && !isEditingLink && (
-                <button onClick={() => setIsEditingLink(true)} className="text-sm text-gray-400 hover:text-white mb-4">
+                <button onClick={() => setIsEditingLink(true)} className="text-sm text-[var(--text-secondary)] hover:text-[var(--brand-solid)] mb-4 transition-colors">
                   Edit Meeting Link
                 </button>
               )}
@@ -176,11 +230,11 @@ export default function MeetingRoom() {
                     value={editLinkValue}
                     onChange={e => setEditLinkValue(e.target.value)}
                     placeholder="https://meet.google.com/..."
-                    className="flex-1 bg-gray-700 text-white"
+                    className="flex-1 bg-[var(--bg-secondary)] border-[var(--border-subtle)] text-[var(--text-primary)] transition-colors"
                   />
                   <Button
                     onClick={handleSaveLink}
-                    className="px-3 py-1 bg-indigo-600 rounded text-white"
+                    className="px-4 py-2 bg-[var(--brand-solid)] hover:opacity-90 text-white rounded-xl transition-all border-none"
                   >
                     Save
                   </Button>
@@ -189,28 +243,37 @@ export default function MeetingRoom() {
 
               {/* Status */}
               <div className="space-y-4 mb-6">
-                <div className="flex items-center gap-3 text-sm text-gray-400"><Camera size={16} /> <span>Camera: {isVideoOn ? 'Working' : 'Off'}</span></div>
-                <div className="flex items-center gap-3 text-sm text-gray-400"><Mic size={16} /> <span>Microphone: {isMicOn ? 'Working' : 'Off'}</span></div>
-                <div className="flex items-center gap-3 text-sm text-gray-400"><Monitor size={16} /> <span>Network: Stable</span></div>
+                <div className="flex items-center gap-3 text-sm text-[var(--text-secondary)]"><Camera size={16} /> <span className="transition-colors">Camera: {isVideoOn ? 'Working' : 'Off'}</span></div>
+                <div className="flex items-center gap-3 text-sm text-[var(--text-secondary)]"><Mic size={16} /> <span className="transition-colors">Microphone: {isMicOn ? 'Working' : 'Off'}</span></div>
+                <div className="flex items-center gap-3 text-sm text-[var(--text-secondary)]"><Monitor size={16} /> <span className="transition-colors">Network: Stable</span></div>
               </div>
 
               {/* Join Button */}
               <Button
-                onClick={() => window.open(currentLink, '_blank')}
-                className="w-full py-6 text-lg bg-indigo-600 hover:bg-indigo-700 border-none"
+                onClick={() => {
+                  // Stop the camera stream so Google Meet can use it
+                  if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    setStream(null);
+                    setIsVideoOn(false);
+                    setIsMicOn(false);
+                  }
+                  window.open(currentLink, '_blank');
+                }}
+                className="w-full py-6 text-lg bg-[var(--brand-solid)] hover:opacity-90 border-none transition-all shadow-lg shadow-[var(--brand-solid)]/20 text-white"
               >
-                Join Google Meet
+                Join Google Meeting
                 <ExternalLink className="ml-2 h-5 w-5" />
               </Button>
 
-              <p className="mt-4 text-center text-xs text-gray-500">
-                Clicking join will open Google Meet in a new tab.
+              <p className="mt-4 text-center text-xs text-[var(--text-secondary)]/60 transition-colors">
+                Clicking join will open the link in a new tab.
               </p>
             </Card>
 
-            <Card className="bg-gray-800/50 border-white/5 p-6 text-white">
+            <Card className="bg-[var(--bg-elevated)]/50 border-[var(--border-subtle)]/50 p-6 text-[var(--text-primary)] transition-colors">
               <h4 className="font-semibold mb-3">Meeting Tips</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
+              <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
                 <li>• Find a quiet place for the session</li>
                 <li>• Use headphones for better audio</li>
                 <li>• Ensure your background is professional</li>

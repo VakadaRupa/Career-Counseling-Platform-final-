@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/BaseComponents';
 import { Send, Loader2, User, Bot, Plus, MessageSquare, Trash2 } from 'lucide-react';
 import { getChatResponse } from '../services/geminiService';
@@ -46,30 +45,31 @@ export default function Counseling() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-white">
-      <Navbar />
+    <div className="flex h-screen flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300">
+      
+
       
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - Chat History */}
-        <aside className="hidden w-64 flex-col border-r border-gray-200 bg-gray-50 md:flex">
+        <aside className="hidden w-64 flex-col border-r border-[var(--border-subtle)] bg-[var(--bg-secondary)] md:flex transition-colors">
           <div className="p-4">
-            <Button variant="outline" className="w-full justify-start gap-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-100">
+            <Button variant="outline" className="w-full justify-start gap-2 border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-all">
               <Plus size={16} />
               New Chat
             </Button>
           </div>
           
           <div className="flex-1 overflow-y-auto px-2 py-4">
-            <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Recent Chats</p>
+            <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] transition-colors">Recent Chats</p>
             <div className="space-y-1">
               {history.map((chat) => (
                 <button
                   key={chat.id}
-                  className="group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-200 hover:text-gray-900"
+                  className="group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)] transition-all"
                 >
-                  <MessageSquare size={16} className="shrink-0 text-gray-400" />
+                  <MessageSquare size={16} className="shrink-0 text-[var(--text-secondary)]/60" />
                   <span className="flex-1 truncate">{chat.title}</span>
-                  <Trash2 size={14} className="hidden group-hover:block text-gray-400 hover:text-red-500" />
+                  <Trash2 size={14} className="hidden group-hover:block text-[var(--text-secondary)]/60 hover:text-red-500" />
                 </button>
               ))}
             </div>
@@ -77,7 +77,7 @@ export default function Counseling() {
         </aside>
 
         {/* Main Chat Area */}
-        <main className="relative flex flex-1 flex-col overflow-hidden bg-gray-50/50">
+        <main className="relative flex flex-1 flex-col overflow-hidden bg-[var(--bg-secondary)]/50 transition-colors">
           <div className="absolute inset-0 opacity-5 pointer-events-none">
             <img 
               src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1200" 
@@ -101,14 +101,14 @@ export default function Counseling() {
                     className="flex gap-4 md:gap-6"
                   >
                     <div className={cn(
-                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-sm",
-                      msg.role === 'assistant' ? "bg-emerald-600 text-white" : "bg-indigo-600 text-white"
+                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-sm transition-colors",
+                      msg.role === 'assistant' ? "bg-[var(--info-bg)] text-[var(--info-text)]" : "bg-[var(--brand-solid)] text-white"
                     )}>
                       {msg.role === 'assistant' ? <Bot size={20} /> : <User size={20} />}
                     </div>
                     <div className="flex-1 space-y-2 overflow-hidden">
-                      <p className="text-sm font-bold text-gray-900 capitalize">{msg.role}</p>
-                      <div className="prose prose-slate max-w-none text-gray-700 leading-relaxed">
+                      <p className="text-sm font-bold text-[var(--text-primary)] capitalize transition-colors">{msg.role}</p>
+                      <div className="text-[var(--text-secondary)] leading-relaxed transition-colors">
                         {msg.text}
                       </div>
                     </div>
@@ -118,18 +118,18 @@ export default function Counseling() {
               
               {loading && (
                 <div className="flex gap-4 md:gap-6">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-emerald-600 text-white">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-[var(--info-bg)] text-[var(--info-text)] transition-colors">
                     <Bot size={20} />
                   </div>
                   <div className="flex items-center">
-                    <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                    <Loader2 className="h-5 w-5 animate-spin text-[var(--text-secondary)]" />
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="border-t border-gray-200 bg-white p-4 md:p-8">
+          <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-4 md:p-8 transition-colors">
             <div className="mx-auto max-w-3xl">
               <form 
                 onSubmit={handleSend}
@@ -137,7 +137,7 @@ export default function Counseling() {
               >
                 <textarea
                   rows={1}
-                  className="w-full resize-none rounded-xl border border-gray-200 bg-white py-4 pl-4 pr-12 text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full resize-none rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] py-4 pl-4 pr-12 text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 shadow-sm focus:border-[var(--brand-solid)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-solid)] transition-all"
                   placeholder="Ask me anything about your career..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -151,7 +151,7 @@ export default function Counseling() {
                 <button
                   type="submit"
                   disabled={!input.trim() || loading}
-                  className="absolute right-2 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white transition-colors hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400"
+                  className="absolute right-2 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--brand-solid)] text-white transition-all hover:opacity-90 disabled:bg-[var(--bg-secondary)] disabled:text-[var(--text-secondary)]/40"
                 >
                   <Send size={18} />
                 </button>

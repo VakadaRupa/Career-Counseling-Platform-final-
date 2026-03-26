@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { 
   LogOut, User, Briefcase, MessageSquare, BookOpen, 
   LayoutDashboard, MessageCircle, Shield, CreditCard, 
-  Bell, Settings, ChevronRight, Sparkles, Bot, Users, X
+  Bell, Settings, ChevronRight, Sparkles, Bot, Users, X, FileText
 } from 'lucide-react';
 import { Button } from './ui/BaseComponents';
 import { motion, AnimatePresence } from 'motion/react';
@@ -20,6 +20,10 @@ export default function Sidebar({ isOpen, onClose }) {
     { to: '/resources', icon: BookOpen, label: 'Resource Vault' },
     { to: '/jobs', icon: Briefcase, label: 'Job Board' },
     { to: '/community', icon: Users, label: 'Community' },
+    { to: '/assignments', icon: Sparkles, label: 'Assignments' },
+    { to: '/resume', icon: FileText, label: 'Resume AI' },
+    { to: '/forum', icon: MessageSquare, label: 'Forum' },
+    { to: '/pricing', icon: CreditCard, label: 'Pricing' },
   ];
 
   if (isAdmin) {
@@ -99,25 +103,29 @@ export default function Sidebar({ isOpen, onClose }) {
         })}
       </nav>
 
-      {/* Upgrade Card */}
-      <div className="relative z-10 px-6 pb-8">
-        <div className="rounded-[2rem] bg-gradient-to-br from-brand-600 to-indigo-700 p-6 overflow-hidden relative group">
+      {/*
+         
+      <div className="relative z-10 px-4 pb-4">
+        <div className="rounded-xl bg-gradient-to-br from-brand-600 to-indigo-700 p-4 overflow-hidden relative group">
           <div className="relative z-10">
-            <h4 className="text-lg font-bold mb-2">Go Pro.</h4>
-            <p className="text-xs text-brand-100 mb-6 leading-relaxed">Unlock advanced AI models and priority mentorship.</p>
+            <h4 className="text-base font-bold mb-2">Go Pro.</h4>
+            <p className="text-xs text-brand-100 mb-3 leading-relaxed">Unlock advanced AI models and priority mentorship.</p>
             <Link to="/pricing" onClick={onClose}>
-              <Button className="w-full bg-white text-brand-600 hover:bg-brand-50 border-none rounded-xl py-5 font-bold uppercase tracking-widest text-[10px]">
+              <Button className="w-full bg-white text-brand-600 hover:bg-brand-50 border-none rounded-xl py-2 font-bold uppercase tracking-widest text-[10px]">
                 Upgrade Now
               </Button>
             </Link>
           </div>
-          <Sparkles className="absolute -right-4 -top-4 h-24 w-24 text-white/10 rotate-12 group-hover:scale-110 transition-transform duration-700" />
-        </div>
-      </div>
+          <Sparkles className="absolute -right-4 -top-4 h-12 w-12 text-white/10 rotate-12 group-hover:scale-110 transition-transform duration-700" />
+       </div>
+     </div> 
+     */}
+
+
 
       {/* User Profile */}
       <div className="relative z-10 px-6 pb-12">
-        <div className="flex items-center gap-4 p-4 rounded-[2rem] bg-white/5 border border-white/5">
+        <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
           <div className="h-12 w-12 rounded-2xl bg-slate-800 overflow-hidden border border-white/10">
             <img 
               src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`} 

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import Navbar from '../components/Navbar';
+
 import { Card, Button, Badge, Input } from '../components/ui/BaseComponents';
 import { Check, Star, Zap, Shield, QrCode, Upload, X, Info, CreditCard, Edit3, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +13,7 @@ export default function Pricing() {
   const { plans, qrCode, updatePlanPrice, updateQrCode } = usePricing();
   const isAdmin = user?.role === 'admin';
   const fileInputRef = useRef(null);
-  
+
   const [showPaymentModal, setShowPaymentModal] = useState(null);
   const [editingPrice, setEditingPrice] = useState(null); // ID of the plan being edited
   const [tempPrice, setTempPrice] = useState('');
@@ -51,9 +51,8 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navbar />
-      
+    <div className="min-h-screen bg-[var(--bg-secondary)] transition-colors duration-300">
+
       <main className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="text-center mb-20">
@@ -65,10 +64,10 @@ export default function Pricing() {
             <Badge variant="info" className="mb-4 px-4 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-[0.2em]">
               Flexible Plans
             </Badge>
-            <h1 className="text-5xl md:text-6xl font-black tracking-tight text-slate-900 mb-6">
-              Invest in your <span className="text-brand-600 italic serif">Future.</span>
+            <h1 className="text-5xl md:text-6xl font-black tracking-tight text-[var(--text-primary)] mb-6 transition-colors">
+              Invest in your <span className="text-[var(--brand-solid)] italic serif">Future.</span>
             </h1>
-            <p className="max-w-2xl mx-auto text-lg text-slate-500 leading-relaxed">
+            <p className="max-w-2xl mx-auto text-lg text-[var(--text-secondary)] leading-relaxed transition-colors">
               Choose a plan that fits your career goals. Unlock premium features and expert guidance to accelerate your growth.
             </p>
           </motion.div>
@@ -76,36 +75,36 @@ export default function Pricing() {
 
         {/* Admin Controls Section */}
         {isAdmin && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="mb-16 p-8 rounded-[2.5rem] bg-slate-900 text-white shadow-2xl relative overflow-hidden group"
+            className="mb-16 p-8 rounded-[2.5rem] bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-2xl relative overflow-hidden group border border-[var(--border-subtle)] transition-colors"
           >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/20 blur-[100px] rounded-full -mr-32 -mt-32" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--brand-solid)]/20 blur-[100px] rounded-full -mr-32 -mt-32" />
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="flex items-center gap-6">
-                <div className="h-16 w-16 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
-                  <QrCode size={32} className="text-brand-400" />
+                <div className="h-16 w-16 rounded-2xl bg-[var(--brand-solid)]/10 flex items-center justify-center border border-[var(--brand-solid)]/10 transition-colors">
+                  <QrCode size={32} className="text-[var(--brand-solid)]" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold mb-1">Admin: Pricing & QR Management</h3>
-                  <p className="text-slate-400 text-sm">Update plan costs and the official payment QR code.</p>
+                  <p className="text-[var(--text-secondary)] text-sm transition-colors">Update plan costs and the official payment QR code.</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="h-24 w-24 rounded-xl bg-white p-2 shadow-inner">
+                <div className="h-24 w-24 rounded-xl bg-white p-2 shadow-inner transition-colors">
                   <img src={qrCode} alt="Current QR" className="h-full w-full object-contain" />
                 </div>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleQrUpload} 
-                  className="hidden" 
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleQrUpload}
+                  className="hidden"
                   accept="image/*"
                 />
-                <Button 
+                <Button
                   onClick={() => fileInputRef.current.click()}
-                  className="bg-brand-500 hover:bg-brand-600 text-white rounded-2xl px-6 py-3 flex items-center gap-2"
+                  className="bg-[var(--brand-solid)] hover:opacity-90 text-white rounded-2xl px-6 py-3 flex items-center gap-2 border-none"
                 >
                   <Upload size={18} />
                   Change QR Code
@@ -124,74 +123,71 @@ export default function Pricing() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1, duration: 0.5 }}
             >
-              <Card className={`relative flex flex-col overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 border-none rounded-[3rem] ${
-                plan.popular ? 'bg-slate-900 text-white ring-4 ring-brand-500/20 h-[110%]' : 'bg-white text-slate-900'
-              }`}>
+              <Card className={`relative flex flex-col overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 border border-[var(--border-subtle)] rounded-[3rem] ${plan.popular ? 'bg-[var(--bg-elevated)] text-[var(--text-primary)] ring-4 ring-[var(--brand-solid)]/20 h-[110%]' : 'bg-[var(--bg-elevated)] text-[var(--text-primary)]'
+                }`}>
                 <div className="p-10 flex-1 flex flex-col">
                   {plan.popular && (
                     <div className="absolute top-8 right-8">
-                      <Badge className="bg-brand-500 text-white border-none px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                      <Badge className="bg-[var(--brand-solid)] text-white border-none px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
                         Most Popular
                       </Badge>
                     </div>
                   )}
-                  
+
                   <div className="mb-10">
-                    <p className={`text-[10px] font-black uppercase tracking-[0.3em] mb-4 ${plan.popular ? 'text-brand-400' : 'text-slate-400'}`}>
+                    <p className={`text-[10px] font-black uppercase tracking-[0.3em] mb-4 ${plan.popular ? 'text-[var(--brand-solid)]' : 'text-[var(--text-secondary)]'} transition-colors`}>
                       {plan.name} Plan
                     </p>
                     <div className="flex items-baseline gap-1 mb-4">
-                      <span className="text-5xl font-black tracking-tighter">
+                      <span className="text-5xl font-black tracking-tighter transition-colors">
                         {editingPrice === plan.id ? (
                           <div className="flex items-center gap-2">
                             <span className="text-3xl">$</span>
-                            <input 
-                              type="text" 
-                              value={tempPrice} 
+                            <input
+                              type="text"
+                              value={tempPrice}
                               onChange={(e) => setTempPrice(e.target.value)}
-                              className="w-24 bg-white/10 border border-white/20 rounded-xl px-3 py-1 text-3xl font-black text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                              className="w-24 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-xl px-3 py-1 text-3xl font-black text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-solid)]"
                             />
                           </div>
                         ) : (
                           `$${plan.price}`
                         )}
                       </span>
-                      <span className={`text-sm font-bold ${plan.popular ? 'text-slate-400' : 'text-slate-500'}`}>/month</span>
-                      
+                      <span className={`text-sm font-bold text-[var(--text-secondary)] transition-colors`}>/month</span>
+
                       {isAdmin && (
                         <div className="ml-auto">
                           {editingPrice === plan.id ? (
-                            <button onClick={() => savePrice(plan.id)} className="p-2 text-brand-400 hover:text-brand-300">
+                            <button onClick={() => savePrice(plan.id)} className="p-2 text-[var(--brand-solid)] hover:opacity-80">
                               <Save size={18} />
                             </button>
                           ) : (
-                            <button onClick={() => startEditingPrice(plan)} className="p-2 text-slate-400 hover:text-brand-400">
+                            <button onClick={() => startEditingPrice(plan)} className="p-2 text-[var(--text-secondary)] hover:text-[var(--brand-solid)]">
                               <Edit3 size={18} />
                             </button>
                           )}
                         </div>
                       )}
                     </div>
-                    <p className={`text-sm leading-relaxed ${plan.popular ? 'text-slate-400' : 'text-slate-500'}`}>
+                    <p className="text-sm leading-relaxed text-[var(--text-secondary)] transition-colors">
                       {plan.description}
                     </p>
 
                     {plan.price !== '0' && (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className={`mt-6 p-4 rounded-2xl flex items-center gap-4 transition-all duration-300 ${
-                          plan.popular ? 'bg-white/5 border border-white/10 hover:bg-white/10' : 'bg-slate-50 border border-slate-100 hover:bg-slate-100'
-                        }`}
+                        className="mt-6 p-4 rounded-2xl flex items-center gap-4 transition-all duration-300 bg-[var(--bg-secondary)] border border-[var(--border-subtle)] hover:bg-[var(--bg-secondary)]/80"
                       >
-                        <div className="h-16 w-16 bg-white p-1 rounded-lg shrink-0 shadow-sm">
+                        <div className="h-16 w-16 bg-white p-1 rounded-lg shrink-0 shadow-sm transition-colors">
                           <img src={qrCode} alt="Pay QR" className="h-full w-full object-contain" referrerPolicy="no-referrer" />
                         </div>
                         <div className="text-left">
-                          <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${plan.popular ? 'text-brand-400' : 'text-brand-600'}`}>
+                          <p className={`text-[10px] font-black uppercase tracking-widest mb-1 text-[var(--brand-solid)]`}>
                             Scan to Pay
                           </p>
-                          <p className={`text-[9px] leading-tight font-medium ${plan.popular ? 'text-slate-400' : 'text-slate-500'}`}>
+                          <p className="text-[9px] leading-tight font-medium text-[var(--text-secondary)]/60">
                             Pay ${plan.price} instantly via QR and click below to verify.
                           </p>
                         </div>
@@ -199,28 +195,25 @@ export default function Pricing() {
                     )}
                   </div>
 
-                  <div className={`h-px w-full mb-10 ${plan.popular ? 'bg-white/10' : 'bg-slate-100'}`} />
+                  <div className={`h-px w-full mb-10 bg-[var(--border-subtle)] transition-colors`} />
 
                   <ul className="flex-1 space-y-5 mb-10">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-4 text-sm font-medium">
-                        <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center shrink-0 ${
-                          plan.popular ? 'bg-brand-500/20 text-brand-400' : 'bg-emerald-50 text-emerald-600'
-                        }`}>
+                        <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center shrink-0 bg-[var(--success-bg)] text-[var(--success-text)] transition-colors`}>
                           <Check size={12} strokeWidth={3} />
                         </div>
-                        <span className={plan.popular ? 'text-slate-300' : 'text-slate-600'}>{feature}</span>
+                        <span className="text-[var(--text-secondary)]">{feature}</span>
                       </li>
                     ))}
                   </ul>
 
-                  <Button 
-                    variant={plan.variant} 
-                    className={`w-full py-8 rounded-[2rem] font-black uppercase tracking-widest text-xs transition-all duration-300 ${
-                      plan.popular 
-                        ? 'bg-brand-500 hover:bg-brand-600 text-white shadow-xl shadow-brand-500/20' 
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-900'
-                    }`}
+                  <Button
+                    variant={plan.variant}
+                    className={`w-full py-8 rounded-[2rem] font-black uppercase tracking-widest text-xs transition-all duration-300 ${plan.popular
+                        ? 'bg-[var(--brand-solid)] hover:opacity-90 text-white shadow-xl shadow-[var(--brand-solid)]/20 border-none'
+                        : 'bg-[var(--bg-secondary)] hover:bg-[var(--bg-secondary)]/80 text-[var(--text-primary)] border border-[var(--border-subtle)]'
+                      }`}
                     onClick={() => handleUpgrade(plan)}
                     disabled={plan.price === '0'}
                   >
@@ -232,70 +225,7 @@ export default function Pricing() {
           ))}
         </div>
 
-        {/* Comparison Table */}
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-32 overflow-hidden rounded-[3rem] bg-white border border-slate-100 shadow-xl"
-        >
-          <div className="p-10 md:p-16">
-            <h3 className="text-3xl font-black text-slate-900 mb-12 text-center">Compare <span className="text-brand-600 italic serif">Features</span></h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-100">
-                    <th className="py-6 px-4 text-sm font-black uppercase tracking-widest text-slate-400">Feature</th>
-                    <th className="py-6 px-4 text-sm font-black uppercase tracking-widest text-slate-900 text-center">Free</th>
-                    <th className="py-6 px-4 text-sm font-black uppercase tracking-widest text-brand-600 text-center">Pro</th>
-                    <th className="py-6 px-4 text-sm font-black uppercase tracking-widest text-indigo-600 text-center">Enterprise</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {[
-                    { name: 'AI Career Assistant', free: '5/day', pro: 'Unlimited', enterprise: 'Unlimited' },
-                    { name: 'Expert Counseling', free: '-', pro: '1/month', enterprise: '4/month' },
-                    { name: 'Resource Library', free: 'Basic', pro: 'Premium', enterprise: 'All-Access' },
-                    { name: 'Interview Simulation', free: '-', pro: '-', enterprise: 'Unlimited' },
-                    { name: 'Priority Support', free: '-', pro: 'Email', enterprise: '24/7 Personal' },
-                    { name: 'Resume Review', free: '-', pro: 'Yes', enterprise: 'Yes' },
-                  ].map((row) => (
-                    <tr key={row.name} className="group hover:bg-slate-50 transition-colors">
-                      <td className="py-6 px-4 text-sm font-bold text-slate-900">{row.name}</td>
-                      <td className="py-6 px-4 text-sm text-slate-500 text-center font-medium">{row.free}</td>
-                      <td className="py-6 px-4 text-sm text-slate-900 text-center font-bold">{row.pro}</td>
-                      <td className="py-6 px-4 text-sm text-slate-900 text-center font-bold">{row.enterprise}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </motion.div>
 
-        {/* Trust Badges */}
-        <div className="mt-32 grid grid-cols-1 gap-12 sm:grid-cols-3">
-          {[
-            { icon: Shield, title: 'Secure Payments', desc: 'Encrypted transactions with instant verification.', color: 'indigo' },
-            { icon: Zap, title: 'Instant Access', desc: 'Unlock all features immediately after payment.', color: 'emerald' },
-            { icon: Star, title: 'Cancel Anytime', desc: 'No commitments. Switch or stop whenever you want.', color: 'amber' }
-          ].map((item, idx) => (
-            <motion.div 
-              key={item.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="text-center group"
-            >
-              <div className={`mx-auto flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-${item.color}-50 text-${item.color}-600 mb-6 transition-transform group-hover:scale-110 group-hover:rotate-3`}>
-                <item.icon size={28} />
-              </div>
-              <h4 className="text-lg font-bold text-slate-900 mb-2">{item.title}</h4>
-              <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
-            </motion.div>
-          ))}
-        </div>
       </main>
 
       {/* Payment Modal */}
@@ -307,50 +237,50 @@ export default function Pricing() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowPaymentModal(null)}
-              className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] rounded-[3rem] shadow-2xl overflow-hidden transition-colors"
             >
               <div className="p-8 md:p-12">
-                <button 
+                <button
                   onClick={() => setShowPaymentModal(null)}
-                  className="absolute top-8 right-8 p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all"
+                  className="absolute top-8 right-8 p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] rounded-full transition-all"
                 >
                   <X size={24} />
                 </button>
 
                 <div className="text-center mb-10">
-                  <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-brand-50 text-brand-600 mb-6">
+                  <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-[var(--brand-solid)]/10 text-[var(--brand-solid)] mb-6 transition-colors">
                     <CreditCard size={32} />
                   </div>
-                  <h2 className="text-3xl font-black text-slate-900 mb-2">Complete Payment</h2>
-                  <p className="text-slate-500">Scan the QR code below to pay for the <span className="font-bold text-slate-900">{showPaymentModal.name}</span> plan.</p>
+                  <h2 className="text-3xl font-black text-[var(--text-primary)] mb-2 transition-colors">Complete Payment</h2>
+                  <p className="text-[var(--text-secondary)] transition-colors">Scan the QR code below to pay for the <span className="font-bold text-[var(--text-primary)]">{showPaymentModal.name}</span> plan.</p>
                 </div>
 
                 <div className="flex flex-col items-center gap-8">
-                  <div className="relative p-6 bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200">
-                    <div className="bg-white p-4 rounded-2xl shadow-lg">
+                  <div className="relative p-6 bg-[var(--bg-secondary)] rounded-[2.5rem] border-2 border-dashed border-[var(--border-subtle)] transition-colors">
+                    <div className="bg-white p-4 rounded-2xl shadow-lg transition-colors">
                       <img src={qrCode} alt="Payment QR" className="w-48 h-48 object-contain" />
                     </div>
-                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-[var(--text-primary)] text-[var(--bg-primary)] px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors">
                       Scan to Pay
                     </div>
                   </div>
 
                   <div className="w-full space-y-4">
-                    <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 flex gap-3">
-                      <Info className="text-amber-600 shrink-0" size={20} />
-                      <p className="text-xs text-amber-800 leading-relaxed">
+                    <div className="p-4 rounded-2xl bg-[var(--warning-bg)] border border-[var(--warning-text)]/10 flex gap-3 transition-colors">
+                      <Info className="text-[var(--warning-text)] shrink-0" size={20} />
+                      <p className="text-xs text-[var(--warning-text)] leading-relaxed">
                         After payment, please click the button below. Our team will verify the transaction and upgrade your account within 24 hours.
                       </p>
                     </div>
-                    
-                    <Button 
-                      className="w-full py-8 rounded-2xl bg-slate-900 text-white font-black uppercase tracking-widest text-xs hover:bg-slate-800 shadow-xl"
+
+                    <Button
+                      className="w-full py-8 rounded-2xl bg-[var(--brand-solid)] text-white font-black uppercase tracking-widest text-xs hover:opacity-90 shadow-xl shadow-[var(--brand-solid)]/20 transition-all border-none"
                       onClick={confirmPayment}
                     >
                       I've Made the Payment

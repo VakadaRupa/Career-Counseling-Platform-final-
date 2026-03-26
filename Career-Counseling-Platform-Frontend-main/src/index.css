@@ -24,19 +24,77 @@
   --color-brand-950: #0b1d4a;
 }
 
+:root {
+  /* Semantic Tokens - Light Mode (Default) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-elevated: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --border-subtle: #e2e8f0;
+  --brand-solid: #2665ff;
+
+  /* Status Tokens - Light */
+  --success-text: #166534;
+  --success-bg: #f0fdf4;
+  --success-border: #dcfce7;
+  
+  --warning-text: #92400e;
+  --warning-bg: #fffbeb;
+  --warning-border: #fef3c7;
+  
+  --error-text: #991b1b;
+  --error-bg: #fef2f2;
+  --error-border: #fee2e2;
+  
+  --info-text: #075985;
+  --info-bg: #f0f9ff;
+  --info-border: #e0f2fe;
+}
+
+.dark {
+  /* Semantic Tokens - Dark Mode (MNC standard: near black, high quality) */
+  --bg-primary: #0f1115; 
+  --bg-secondary: #161a1f; 
+  --bg-elevated: #1c2128;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-subtle: #2d333b;
+  --brand-solid: #4d82ff;
+
+  /* Status Tokens - Dark */
+  --success-text: #4ade80;
+  --success-bg: #052c16;
+  --success-border: #064e3b;
+  
+  --warning-text: #fbbf24;
+  --warning-bg: #451a03;
+  --warning-border: #78350f;
+  
+  --error-text: #f87171;
+  --error-bg: #450a0a;
+  --error-border: #7f1d1d;
+  
+  --info-text: #38bdf8;
+  --info-bg: #082f49;
+  --info-border: #0c4a6e;
+}
+
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased selection:bg-brand-100 selection:text-brand-900;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    @apply font-sans antialiased selection:bg-brand-100 selection:text-brand-900 transition-colors duration-300;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight;
+    @apply font-display tracking-tight text-[var(--text-primary)];
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] transition-all;
   }
   
   .super-shadow {
@@ -47,11 +105,11 @@
   }
 
   .premium-gradient {
-    @apply bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900;
+    @apply bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 transition-all;
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-indigo-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-indigo-600 transition-all;
   }
 
   .bento-grid {

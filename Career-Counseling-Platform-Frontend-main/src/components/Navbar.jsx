@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, User, Briefcase, MessageSquare, BookOpen, LayoutDashboard, MessageCircle, Shield, CreditCard, Bell } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { LogOut, User, Briefcase, MessageSquare, BookOpen, LayoutDashboard, MessageCircle, Shield, CreditCard, Sun, Moon } from 'lucide-react';
 import { Button } from './ui/BaseComponents';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
-  const [showNotifications, setShowNotifications] = useState(false);
-
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -16,18 +16,13 @@ export default function Navbar() {
 
   const isAdmin = user?.role === 'admin';
 
-  const notifications = [
-    { id: 1, text: 'Your resume review is ready!', time: '2h ago' },
-    { id: 2, text: 'New job match: Senior React Dev', time: '5h ago' },
-  ];
-
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 w-full border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]/80 backdrop-blur-md transition-colors duration-300">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold">CP</div>
-            <span className="text-xl font-bold tracking-tight text-gray-900">CareerPath AI</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--brand-solid)] text-white font-bold transition-all shadow-lg shadow-brand-500/20">CP</div>
+            <span className="text-xl font-bold tracking-tight text-[var(--text-primary)] transition-colors">CareerPath AI</span>
           </Link>
 
           {user && (
@@ -44,39 +39,28 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={toggleTheme}
+            className="rounded-xl text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] transition-all duration-300"
+            aria-label="Toggle Theme"
+          >
+            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+          </Button>
+
+          <div className="h-6 w-px bg-[var(--border-subtle)] mx-1" />
+
           {user ? (
             <div className="flex items-center gap-4">
-              <div className="relative">
-                <Button variant="ghost" size="sm" onClick={() => setShowNotifications(!showNotifications)}>
-                  <Bell size={18} className="text-gray-500" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500 border border-white"></span>
-                </Button>
-                
-                {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-64 rounded-xl border border-gray-200 bg-white shadow-xl py-2 z-50">
-                    <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
-                      <span className="text-xs font-bold text-gray-900 uppercase">Notifications</span>
-                      <button className="text-[10px] text-indigo-600 font-bold hover:underline">Clear all</button>
-                    </div>
-                    <div className="max-h-64 overflow-y-auto">
-                      {notifications.map(n => (
-                        <div key={n.id} className="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors">
-                          <p className="text-sm text-gray-800">{n.text}</p>
-                          <p className="text-[10px] text-gray-400 mt-1">{n.time}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
 
-              <Link to="/profile" className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-indigo-600">
-                <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
+              <Link to="/profile" className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)] hover:text-brand-500 transition-colors">
+                <div className="h-8 w-8 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center border border-[var(--border-subtle)]">
                   <User size={16} />
                 </div>
                 <span className="hidden sm:inline">{user.name}</span>
               </Link>
-              <Button variant="ghost" onClick={handleLogout} className="text-gray-500">
+              <Button variant="ghost" onClick={handleLogout} className="text-[var(--text-secondary)]">
                 <LogOut size={18} />
               </Button>
             </div>
@@ -100,7 +84,7 @@ function NavLink({ to, icon, label }) {
   return (
     <Link
       to={to}
-      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-indigo-600"
+      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--bg-secondary)] hover:text-brand-500"
     >
       {icon}
       <span>{label}</span>

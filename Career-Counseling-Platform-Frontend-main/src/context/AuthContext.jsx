@@ -17,9 +17,19 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
+    // Convert email like "rupa.joshitha123@xyz.com" -> "Rupa Joshitha"
+    const rawName = email.split('@')[0];
+    const cleanName = rawName
+      .replace(/[._0-9-]/g, ' ')
+      .split(' ')
+      .filter(w => w.length > 0)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ')
+      .trim();
+
     const mockUser = {
-      id: '1',
-      name: email.split('@')[0],
+      id: crypto.randomUUID(), // Prevent duplicate IDs
+      name: cleanName || 'User',
       email,
       role: email.includes('admin') ? 'admin' : 'user',
     };
@@ -29,7 +39,7 @@ export function AuthProvider({ children }) {
 
   const signup = async (name, email, password) => {
     const mockUser = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       name,
       email,
       role: 'user',
@@ -43,8 +53,14 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('career_user');
   };
 
+  const updateProfile = (data) => {
+    const updatedUser = { ...user, ...data };
+    setUser(updatedUser);
+    localStorage.setItem('career_user', JSON.stringify(updatedUser));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );
